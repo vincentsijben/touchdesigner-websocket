@@ -1,4 +1,5 @@
 # touchdesigner-websocket
+This repo includes some example files to create a UI in Adobe XD (and eventually exported as HTML), to control a text component in TouchDesigner by using websockets.
 
 Open `touchdesigner.xd` and install plugin "Web Export" from Velara 3.
 When installed, select any element and choose **Plugins -> Web Export -> Element options**.
