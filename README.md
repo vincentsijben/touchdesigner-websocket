@@ -14,12 +14,24 @@ In the upper right corner you can see a text element with "TouchDesigner code". 
 
 This code is injected:
 ```
-<script>(() => {
-  let url_touchdesigner = "ws://localhost:9980";
-  const socket = new WebSocket(url_touchdesigner);
-  socket.onopen = function (evt) {
-  console.log(`WebSocket ${url_touchdesigner} is open.`);
-    let buttons = document.querySelectorAll(".touchdesigner"); 					buttons.forEach(b => { 						b.addEventListener("click", function (event) { 							let data_touchdesigner = b.getAttribute("data-touchdesigner"); 							if (data_touchdesigner === null) data_touchdesigner = b.getAttribute("id"); 							socket.send(data_touchdesigner); 							console.log(`sent to TouchDesigner: ${data_touchdesigner}`); 						}); 					}) 				}; 			})() 		</script>
+<script>
+			(() => {
+				let url_touchdesigner = "ws://localhost:9980";
+				const socket = new WebSocket(url_touchdesigner);
+				socket.onopen = function (evt) {
+					console.log(`WebSocket ${url_touchdesigner} is open.`);
+					let buttons = document.querySelectorAll(".touchdesigner");
+					buttons.forEach(b => {
+						b.addEventListener("click", function (event) {
+							let data_touchdesigner = b.getAttribute("data-touchdesigner");
+							if (data_touchdesigner === null) data_touchdesigner = b.getAttribute("id");
+							socket.send(data_touchdesigner);
+							console.log(`sent to TouchDesigner: ${data_touchdesigner}`);
+						});
+					})
+				};
+			})()
+		</script>
 ```
 
 Open `webserver.toe` in TouchDesigner and open the `index.html` in your browser. Click button1 and you'll see component text1 change.
