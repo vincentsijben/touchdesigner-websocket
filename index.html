@@ -39,6 +39,7 @@
 		left: 84px;
 		top: 159px;
 		overflow: visible;
+		cursor:  pointer;
 	}
 	#Rectangle_2 {
 		fill: rgba(43,166,242,1);
@@ -65,13 +66,14 @@
 		font-size: 20px;
 		color: rgba(255,255,255,1);
 	}
-	#Button_orange {
+	#mijnCustomID {
 		position: absolute;
 		width: 140px;
 		height: 50px;
 		left: 84px;
 		top: 240px;
 		overflow: visible;
+		cursor:  pointer;
 	}
 	#Rectangle_2_k {
 		fill: rgba(255,167,26,1);
@@ -119,6 +121,7 @@
 		left: 290px;
 		top: 90px;
 		overflow: visible;
+		cursor:  pointer;
 	}
 	#hyperlink {
 		left: 0px;
@@ -139,26 +142,24 @@
 		position: absolute;
 		width: 434px;
 		height: 183px;
-		left: 84px;
-		top: 347px;
+		left: 83px;
+		top: 344px;
 		overflow: visible;
+		cursor:  pointer;
 	}
-	#Rectangle_4 {
-		fill: transparent;
-		stroke: rgba(0,0,0,1);
-		stroke-width: 1px;
-		stroke-linejoin: miter;
-		stroke-linecap: butt;
-		stroke-miterlimit: 4;
-		shape-rendering: auto;
-	}
-	.Rectangle_4 {
+	#TouchDesigner_code {
+		left: 452px;
+		top: 17px;
 		position: absolute;
 		overflow: visible;
-		width: 434px;
-		height: 183px;
-		left: 84px;
-		top: 347px;
+		width: 131px;
+		white-space: nowrap;
+		text-align: left;
+		font-family: Courier New;
+		font-style: normal;
+		font-weight: normal;
+		font-size: 12px;
+		color: rgba(112,112,112,1);
 	}
 </style>
 <script id="applicationScript">
@@ -3083,7 +3084,7 @@ window.application = new Application();
 			<span>Button 1</span>
 		</div>
 	</div>
-	<div id="Button_orange" class="Button_orange touchdesigner">
+	<div id="mijnCustomID" class="Button_orange touchdesigner">
 		<svg class="Rectangle_2_k">
 			<rect id="Rectangle_2_k" rx="0" ry="0" x="0" y="0" width="140" height="50">
 			</rect>
@@ -3095,19 +3096,15 @@ window.application = new Application();
 	<div id="This_text_has_a">
 		<span>This text has a</span>
 	</div>
-	<div id="hyperlink_text" class="hyperlink_text">
+	<div data-touchdesigner="hyper hyper!" id="hyperlink_text" class="hyperlink_text touchdesigner">
 		<div id="hyperlink">
 			<span>hyperlink.</span>
 		</div>
 	</div>
-	<img id="Mask_Group_1" src="Mask_Group_1.png" srcset="Mask_Group_1.png 1x, Mask_Group_1@2x.png 2x">
+	<img data-touchdesigner="geklikt op afbeelding" id="Mask_Group_1" class="touchdesigner" src="Mask_Group_1.png" srcset="Mask_Group_1.png 1x, Mask_Group_1@2x.png 2x">
 		
 	</svg>
-	<svg class="Rectangle_4">
-		<rect id="Rectangle_4" rx="0" ry="0" x="0" y="0" width="434" height="183">
-		</rect>
-	</svg>
+	<script>(() => { 				let url_touchdesigner = "ws://localhost:9980"; 				const socket = new WebSocket(url_touchdesigner); 				socket.onopen = function (evt) { 					console.log(`WebSocket ${url_touchdesigner} is open.`); 					let buttons = document.querySelectorAll(".touchdesigner"); 					buttons.forEach(b => { 						b.addEventListener("click", function (event) { 							let data_touchdesigner = b.getAttribute("data-touchdesigner"); 							if (data_touchdesigner === null) data_touchdesigner = b.getAttribute("id"); 							socket.send(data_touchdesigner); 							console.log(`sent to TouchDesigner: ${data_touchdesigner}`); 						}); 					}) 				}; 			})() 		</script>
 </div>
-<script src="touchdesigner.js"></script>
 </body>
 </html>
