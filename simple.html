@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>index</title>
+	<style id="applicationStylesheet" type="text/css">
+		.mediaViewInfo {
+			--web-view-name: index;
+			--web-view-id: index;
+			--web-scale-on-resize: true;
+			--web-enable-deep-linking: true;
+		}
+
+		:root {
+			--web-view-ids: index;
+		}
+
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+			border: none;
+		}
+
+		#index {
+			position: absolute;
+			width: 600px;
+			height: 600px;
+			background-color: rgba(255, 255, 255, 1);
+			overflow: hidden;
+			--web-view-name: index;
+			--web-view-id: index;
+			--web-scale-on-resize: true;
+			--web-enable-deep-linking: true;
+		}
+
+		#Button_blue {
+			position: absolute;
+			width: 140px;
+			height: 50px;
+			left: 84px;
+			top: 159px;
+			overflow: visible;
+			cursor: pointer;
+		}
+
+		#Rectangle_2 {
+			fill: rgba(43, 166, 242, 1);
+		}
+
+		.Rectangle_2 {
+			position: absolute;
+			overflow: visible;
+			width: 140px;
+			height: 50px;
+			left: 0px;
+			top: 0px;
+		}
+
+		#Button_1 {
+			left: 33px;
+			top: 14px;
+			position: absolute;
+			overflow: visible;
+			width: 76px;
+			white-space: nowrap;
+			text-align: left;
+			font-family: Arial;
+			font-style: normal;
+			font-weight: normal;
+			font-size: 20px;
+			color: rgba(255, 255, 255, 1);
+		}
+
+		#mijnCustomID {
+			position: absolute;
+			width: 140px;
+			height: 50px;
+			left: 84px;
+			top: 240px;
+			overflow: visible;
+			cursor: pointer;
+		}
+
+		#Rectangle_2_k {
+			fill: rgba(255, 167, 26, 1);
+		}
+
+		.Rectangle_2_k {
+			position: absolute;
+			overflow: visible;
+			width: 140px;
+			height: 50px;
+			left: 0px;
+			top: 0px;
+		}
+
+		#Button_2 {
+			left: 33px;
+			top: 14px;
+			position: absolute;
+			overflow: visible;
+			width: 76px;
+			white-space: nowrap;
+			text-align: left;
+			font-family: Arial;
+			font-style: normal;
+			font-weight: normal;
+			font-size: 20px;
+			color: rgba(255, 255, 255, 1);
+		}
+
+		#This_text_has_a {
+			left: 84px;
+			top: 90px;
+			position: absolute;
+			overflow: visible;
+			width: 196px;
+			white-space: nowrap;
+			text-align: left;
+			font-family: Arial;
+			font-style: normal;
+			font-weight: normal;
+			font-size: 30px;
+			color: rgba(0, 0, 0, 1);
+		}
+
+		#hyperlink_text {
+			position: absolute;
+			width: 128px;
+			height: 33px;
+			left: 290px;
+			top: 90px;
+			overflow: visible;
+			cursor: pointer;
+		}
+
+		#hyperlink {
+			left: 0px;
+			top: 0px;
+			position: absolute;
+			overflow: visible;
+			width: 129px;
+			white-space: nowrap;
+			text-align: left;
+			font-family: Arial;
+			font-style: normal;
+			font-weight: normal;
+			font-size: 30px;
+			color: rgba(0, 0, 0, 1);
+			text-decoration: underline;
+		}
+
+		#Mask_Group_1 {
+			position: absolute;
+			width: 434px;
+			height: 183px;
+			left: 83px;
+			top: 344px;
+			overflow: visible;
+			cursor: pointer;
+		}
+
+		#TouchDesigner_code {
+			left: 452px;
+			top: 17px;
+			position: absolute;
+			overflow: visible;
+			width: 131px;
+			white-space: nowrap;
+			text-align: left;
+			font-family: Courier New;
+			font-style: normal;
+			font-weight: normal;
+			font-size: 12px;
+			color: rgba(112, 112, 112, 1);
+		}
+	</style>
+</head>
+
+<body>
+	<div id="index">
+		<div data-touchdesigner="mydata" id="Button_blue" class="Button_blue touchdesigner">
+			<svg class="Rectangle_2">
+				<rect id="Rectangle_2" rx="0" ry="0" x="0" y="0" width="140" height="50">
+				</rect>
+			</svg>
+			<div id="Button_1">
+				<span>Button 1</span>
+			</div>
+		</div>
+		<div id="mijnCustomID" class="Button_orange touchdesigner">
+			<svg class="Rectangle_2_k">
+				<rect id="Rectangle_2_k" rx="0" ry="0" x="0" y="0" width="140" height="50">
+				</rect>
+			</svg>
+			<div id="Button_2">
+				<span>Button 2</span>
+			</div>
+		</div>
+		<div id="This_text_has_a">
+			<span>This text has a</span>
+		</div>
+		<div data-touchdesigner="hyper hyper!" id="hyperlink_text" class="hyperlink_text touchdesigner">
+			<div id="hyperlink">
+				<span>hyperlink.</span>
+			</div>
+		</div>
+		<img data-touchdesigner="geklikt op afbeelding" id="Mask_Group_1" class="touchdesigner" src="Mask_Group_1.png"
+			srcset="Mask_Group_1.png 1x, Mask_Group_1@2x.png 2x">
+
+		</svg>
+		<script>
+			(() => { 
+				let url_touchdesigner = "ws://localhost:9980"; 
+				const socket = new WebSocket(url_touchdesigner); 
+				socket.onopen = function (evt) { 
+					console.log(`WebSocket ${url_touchdesigner} is open.`); 
+					let buttons = document.querySelectorAll(".touchdesigner"); 
+					buttons.forEach(b => { 
+						b.addEventListener("click", function (event) { 
+							let data_touchdesigner = b.getAttribute("data-touchdesigner"); 
+							if (data_touchdesigner === null) data_touchdesigner = b.getAttribute("id"); 
+							socket.send(data_touchdesigner); 
+							console.log(`sent to TouchDesigner: ${data_touchdesigner}`); 
+						}); 
+					}) 
+				}; 
+			})()
+		</script>
+	</div>
+</body>
+
+</html>
