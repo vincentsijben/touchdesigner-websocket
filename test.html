@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TouchDesigner Control Panel</title>
+  <style>
+    :root {
+      --bg-1: #0b1220;
+      --bg-2: #13203a;
+      --card: rgba(255, 255, 255, 0.08);
+      --line: rgba(255, 255, 255, 0.16);
+      --text: #eef4ff;
+      --muted: #b8c7e5;
+      --accent: #5dd2ff;
+      --ok: #3ddc84;
+      --bad: #ff667f;
+      --shadow: 0 14px 36px rgba(0, 0, 0, 0.34);
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 10% -10%, #2d4b86 0%, rgba(45, 75, 134, 0) 45%),
+        radial-gradient(circle at 100% 0%, #14547a 0%, rgba(20, 84, 122, 0) 35%),
+        linear-gradient(140deg, var(--bg-1), var(--bg-2));
+      padding: 24px;
+    }
+
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      gap: 16px;
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+      padding: 16px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(1.35rem, 2.4vw, 2rem);
+      letter-spacing: 0.02em;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 1.05rem;
+      color: var(--accent);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .muted {
+      color: var(--muted);
+      margin: 0;
+      line-height: 1.45;
+    }
+
+    .top {
+      display: grid;
+      grid-template-columns: 260px auto minmax(240px, 1fr);
+      gap: 8px;
+      align-items: flex-start;
+    }
+
+    .ws-stack {
+      display: grid;
+      gap: 8px;
+      width: 260px;
+      min-width: 0;
+    }
+
+    #wsUrl {
+      width: 260px;
+      max-width: 100%;
+      background: rgba(0, 0, 0, 0.22);
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+    }
+
+    .top-toggles {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .top-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      white-space: nowrap;
+    }
+
+    .manual-inline {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: nowrap;
+      margin-left: 0;
+      min-width: 0;
+      justify-content: flex-end;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #manualText {
+      width: auto;
+      flex: 1 1 220px;
+      min-width: 140px;
+      max-width: none;
+      background: rgba(0, 0, 0, 0.22);
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 0.92rem;
+    }
+
+    .status {
+      font-weight: 600;
+      border-radius: 999px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      background: rgba(0, 0, 0, 0.18);
+      width: 170px;
+      min-width: 170px;
+      text-align: center;
+    }
+
+    .status.open {
+      color: #02240f;
+      background: var(--ok);
+      border-color: transparent;
+    }
+
+    .status.closed,
+    .status.error {
+      color: #3b0b12;
+      background: var(--bad);
+      border-color: transparent;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.08));
+      color: var(--text);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.15s ease, filter 0.15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.08);
+    }
+
+    .td-button {
+      border-color: rgba(93, 210, 255, 0.45);
+      box-shadow: inset 0 0 0 1px rgba(93, 210, 255, 0.15);
+    }
+
+    .td-button.is-pressed,
+    .td-button:active {
+      transform: translateY(1px) scale(0.985);
+      filter: brightness(1.2);
+      border-color: rgba(93, 210, 255, 0.95);
+      background: linear-gradient(180deg, rgba(93, 210, 255, 0.5), rgba(93, 210, 255, 0.22));
+      box-shadow: 0 0 0 2px rgba(93, 210, 255, 0.35), inset 0 0 20px rgba(93, 210, 255, 0.35);
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+
+    .col-4 {
+      grid-column: span 4;
+    }
+
+    .col-6 {
+      grid-column: span 6;
+    }
+
+    .button-row {
+      display: grid;
+      gap: 10px;
+    }
+
+    .tight-radio-group {
+      gap: 10px;
+    }
+
+    .vertical-radio-group {
+      display: grid;
+      gap: 6px;
+      justify-items: start;
+    }
+
+    .mini-row {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: center;
+    }
+
+    .control {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .control:last-child {
+      margin-bottom: 0;
+    }
+
+    .label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+      font-size: 0.93rem;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    input[type="color"] {
+      width: 100%;
+      height: 42px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: transparent;
+      cursor: pointer;
+    }
+
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.22);
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+    }
+
+    textarea {
+      min-height: 72px;
+      resize: vertical;
+    }
+
+    .inline {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .log {
+      background: rgba(0, 0, 0, 0.32);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px;
+      font-family: Menlo, Consolas, monospace;
+      font-size: 0.84rem;
+      min-height: 130px;
+      max-height: 220px;
+      overflow: auto;
+      line-height: 1.4;
+    }
+
+    .help {
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
+
+    .log-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .radio-group.vertical-radio-group {
+      display: grid;
+    }
+
+    .col-3 {
+      grid-column: span 3;
+    }
+
+    .col-5 {
+      grid-column: span 5;
+    }
+
+    @media (max-width: 900px) {
+      .col-3,
+      .col-4,
+      .col-5,
+      .col-6 {
+        grid-column: span 12;
+      }
+
+      #wsUrl,
+      #manualText {
+        width: 100%;
+      }
+
+      .manual-inline {
+        margin-left: 0;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+      }
+
+      .top-actions {
+        width: 100%;
+      }
+
+      .top {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="panel">
+      <h1>TouchDesigner Control Panel</h1>
+      <p class="muted">All controls send plain websocket messages compatible with your simple.html approach.</p>
+      <div class="top" style="margin-top: 12px;">
+        <div class="ws-stack">
+          <input id="wsUrl" type="text" value="ws://localhost:9980" aria-label="WebSocket URL" />
+          <div class="top-toggles">
+            <label class="top-toggle"><input id="mousePositionToggle" data-name="mousePosition" type="checkbox" /> Send Mouse Position</label>
+            <label class="top-toggle"><input id="keyCaptureToggle" data-name="keyCapture" type="checkbox" /> Send Key Presses</label>
+          </div>
+        </div>
+        <div class="top-actions">
+          <button id="connectBtn" type="button">Connect</button>
+          <button id="disconnectBtn" type="button">Disconnect</button>
+          <div id="status" class="status">DISCONNECTED</div>
+        </div>
+        <div class="manual-inline">
+          <input id="manualText" type="text" placeholder="Manual message (type:name:value)" aria-label="Manual message" />
+          <button id="sendManual" type="button">Send</button>
+        </div>
+      </div>
+      <p class="help" style="margin-top: 10px;">Message format used here: type:name:value (example: slider:speed:0.5)</p>
+    </section>
+
+    <section class="grid">
+      <div class="panel col-3">
+        <h2>Trigger Buttons</h2>
+        <div class="button-row">
+          <button type="button" class="td-button" data-name="intro">Intro Cue</button>
+          <button type="button" class="td-button" data-name="blackout">Blackout</button>
+          <button type="button" class="td-button" data-name="reset">Reset</button>
+        </div>
+      </div>
+
+      <div class="panel col-3">
+        <h2>Range Sliders</h2>
+        <div class="control">
+          <div class="label-row"><span>Brightness</span><span data-value-for="brightness">0.60</span></div>
+          <input id="brightness" data-name="brightness" type="range" min="0" max="1" step="0.01" value="0.60" />
+        </div>
+        <div class="control">
+          <div class="label-row"><span>Speed</span><span data-value-for="speed">0.35</span></div>
+          <input id="speed" data-name="speed" type="range" min="0" max="1" step="0.01" value="0.35" />
+        </div>
+        <div class="control">
+          <div class="label-row"><span>Scale</span><span data-value-for="scale">1.00</span></div>
+          <input id="scale" data-name="scale" type="range" min="0.1" max="2" step="0.01" value="1" />
+        </div>
+      </div>
+
+      <div class="panel col-3">
+        <h2>Color</h2>
+        <div class="control">
+          <div class="label-row"><span>Color</span><span data-value-for="primaryColor">0.0000,0.8314,1.0000</span></div>
+          <input id="primaryColor" data-name="color" type="color" value="#00d4ff" />
+        </div>
+        <div class="control">
+          <div class="label-row"><span>Alpha</span><span data-value-for="backgroundAlpha">1.0000</span></div>
+          <input id="backgroundAlpha" type="range" min="0" max="1" step="0.0001" value="1" />
+        </div>
+      </div>
+
+      <div class="panel col-3">
+        <h2>Checkbox And Radiobuttons</h2>
+        <div class="control inline">
+          <input id="strobe" data-name="showGrid" type="checkbox" />
+          <label for="strobe">Show Grid</label>
+        </div>
+        <div class="control">
+          <div class="label-row"><span>Mode</span></div>
+          <div class="radio-group tight-radio-group vertical-radio-group">
+            <label><input type="radio" name="mode" value="calm" data-name="mode" checked /> Calm</label>
+            <label><input type="radio" name="mode" value="energy" data-name="mode" /> Energy</label>
+            <label><input type="radio" name="mode" value="glitch" data-name="mode" /> Glitch</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel col-6">
+        <h2>Select And Numeric Inputs</h2>
+        <div class="mini-row">
+          <div class="control" style="margin-bottom: 0;">
+            <div class="label-row"><span>Scene Preset</span></div>
+            <select id="scenePreset" data-name="scenePreset">
+              <option value="scene_a">Scene A</option>
+              <option value="scene_b">Scene B</option>
+              <option value="scene_c">Scene C</option>
+              <option value="scene_d">Scene D</option>
+            </select>
+          </div>
+          <div class="control" style="margin-bottom: 0;">
+            <div class="label-row"><span>BPM</span></div>
+            <input id="bpm" data-name="bpm" type="number" min="30" max="220" step="1" value="120" />
+          </div>
+        </div>
+        <div class="control" style="margin-top: 12px;">
+          <div class="label-row"><span>Project Title</span></div>
+          <input id="titleText" data-name="title" type="text" value="My cool project" />
+        </div>
+      </div>
+
+      <div class="panel col-6">
+        <div class="log-head">
+          <h2 style="margin: 0;">Activity Log</h2>
+          <button id="clearLog" type="button">Clear Log</button>
+        </div>
+        <div id="log" class="log"></div>
+      </div>
+
+    </section>
+  </main>
+
+  <script src="receive.js"></script>
+  <script>
+    (() => {
+      const wsUrlInput = document.getElementById("wsUrl");
+      const connectBtn = document.getElementById("connectBtn");
+      const disconnectBtn = document.getElementById("disconnectBtn");
+      const statusEl = document.getElementById("status");
+      const logEl = document.getElementById("log");
+      const sendManualBtn = document.getElementById("sendManual");
+      const clearLogBtn = document.getElementById("clearLog");
+      const manualTextEl = document.getElementById("manualText");
+      const mousePositionToggle = document.getElementById("mousePositionToggle");
+      const keyCaptureToggle = document.getElementById("keyCaptureToggle");
+      const primaryColorInput = document.getElementById("primaryColor");
+      const backgroundAlphaInput = document.getElementById("backgroundAlpha");
+
+      let socket = null;
+      let mouseTrackingEnabled = false;
+      let keyCaptureEnabled = false;
+      let lastMouseSample = null;
+      let mouseFramePending = false;
+
+      function log(message) {
+        const time = new Date().toLocaleTimeString();
+        const line = document.createElement("div");
+        line.textContent = "[" + time + "] " + message;
+        logEl.prepend(line);
+      }
+
+      function setStatus(type, text) {
+        statusEl.className = "status " + type;
+        statusEl.textContent = text;
+      }
+
+      function connect() {
+        const url = wsUrlInput.value.trim() || "ws://localhost:9980";
+
+        if (socket && socket.readyState === WebSocket.OPEN) {
+          socket.close();
+        }
+
+        try {
+          socket = new WebSocket(url);
+          setStatus("", "CONNECTING");
+          log("Connecting to " + url);
+
+          socket.onopen = () => {
+            setStatus("open", "CONNECTED");
+            log("WebSocket open");
+          };
+
+          socket.onclose = () => {
+            setStatus("closed", "DISCONNECTED");
+            log("WebSocket closed");
+          };
+
+          socket.onerror = () => {
+            setStatus("error", "ERROR");
+            log("WebSocket error");
+          };
+
+          socket.onmessage = (event) => {
+            log("Received: " + event.data);
+            if (window.tdReceive && typeof window.tdReceive.applyIncomingMessage === "function") {
+              window.tdReceive.applyIncomingMessage(event.data, log);
+            }
+          };
+        } catch (err) {
+          setStatus("error", "ERROR");
+          log("Connect failed: " + err.message);
+        }
+      }
+
+      function disconnect() {
+        if (socket) {
+          try {
+            if (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING) {
+              socket.close(1000, "Client disconnect");
+            }
+          } catch (err) {
+            log("Disconnect failed: " + err.message);
+          }
+        }
+
+        socket = null;
+        setStatus("closed", "DISCONNECTED");
+        log("WebSocket disconnected (manual)");
+      }
+
+      function sendToTouchDesigner(message) {
+        if (!socket || socket.readyState !== WebSocket.OPEN) {
+          log("Cannot send (not connected): " + message);
+          return;
+        }
+
+        socket.send(message);
+        log("Sent: " + message);
+      }
+
+      function sendSegment(type, name, value) {
+        sendToTouchDesigner(type + ":" + name + ":" + value);
+      }
+
+      function hexToRgbaString(hexValue, alphaValue) {
+        const hex = String(hexValue).replace("#", "");
+        const r = (parseInt(hex.slice(0, 2), 16) / 255).toFixed(4);
+        const g = (parseInt(hex.slice(2, 4), 16) / 255).toFixed(4);
+        const b = (parseInt(hex.slice(4, 6), 16) / 255).toFixed(4);
+        const alpha = Number.isFinite(alphaValue) ? alphaValue : 1;
+        const a = Number(alpha).toFixed(4);
+        return r + "," + g + "," + b + "," + a;
+      }
+
+      function formatDisplayFloat(value) {
+        const numeric = Number(value);
+        if (!Number.isFinite(numeric)) {
+          return String(value);
+        }
+        return numeric.toFixed(4).replace(/\.0+$/, "").replace(/(\.\d*?)0+$/, "$1");
+      }
+
+      function sendBackgroundColor() {
+        const alpha = parseFloat(backgroundAlphaInput.value);
+        const rgba = hexToRgbaString(primaryColorInput.value, alpha);
+        const rgbaParts = rgba.split(",");
+        const rgb = rgbaParts.slice(0, 3).map((channel) => formatDisplayFloat(channel)).join(",");
+        updateValueLabel("primaryColor", rgb);
+        updateValueLabel("backgroundAlpha", Number.isFinite(alpha) ? formatDisplayFloat(alpha) : "1");
+        sendSegment("color", primaryColorInput.dataset.name, rgba);
+      }
+
+      function syncBackgroundDisplayFromInputs() {
+        const alpha = parseFloat(backgroundAlphaInput.value);
+        const rgba = hexToRgbaString(primaryColorInput.value, alpha);
+        const rgbaParts = rgba.split(",");
+        const rgb = rgbaParts.slice(0, 3).map((channel) => formatDisplayFloat(channel)).join(",");
+        updateValueLabel("primaryColor", rgb);
+        updateValueLabel("backgroundAlpha", Number.isFinite(alpha) ? formatDisplayFloat(alpha) : "1");
+      }
+
+      function sendMousePosition(event) {
+        if (!mouseTrackingEnabled) {
+          return;
+        }
+
+        const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 1;
+        const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 1;
+        const centeredX = (event.clientX - viewportWidth * 0.5) / (viewportWidth * 0.5);
+        const centeredY = (viewportHeight * 0.5 - event.clientY) / (viewportHeight * 0.5);
+
+        // Clamp to a predictable -1..1 range with 0,0 in the viewport center.
+        const normalizedX = Math.min(Math.max(centeredX, -1), 1);
+        const normalizedY = Math.min(Math.max(centeredY, -1), 1);
+
+        lastMouseSample = { x: normalizedX, y: normalizedY };
+
+        if (mouseFramePending) {
+          return;
+        }
+
+        mouseFramePending = true;
+        window.requestAnimationFrame(() => {
+          mouseFramePending = false;
+          if (!lastMouseSample) {
+            return;
+          }
+
+          sendSegment("slider", "mouseX", lastMouseSample.x.toFixed(4));
+          sendSegment("slider", "mouseY", lastMouseSample.y.toFixed(4));
+        });
+      }
+
+      function updateValueLabel(controlId, value) {
+        const label = document.querySelector('[data-value-for="' + controlId + '"]');
+        if (label) {
+          label.textContent = String(value);
+        }
+      }
+
+      connectBtn.addEventListener("click", connect);
+      disconnectBtn.addEventListener("click", disconnect);
+      wsUrlInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          connect();
+        }
+      });
+
+      function bindButtonPressRelease(el) {
+        const name = el.getAttribute("data-name") || el.id;
+
+        const setPressedVisual = (pressed) => {
+          el.classList.toggle("is-pressed", pressed);
+          el.setAttribute("aria-pressed", pressed ? "true" : "false");
+        };
+
+        const press = () => {
+          setPressedVisual(true);
+          sendSegment("button", name, 1);
+        };
+
+        const release = () => {
+          setPressedVisual(false);
+          sendSegment("button", name, 0);
+        };
+
+        el.addEventListener("mousedown", press);
+        el.addEventListener("mouseup", release);
+        el.addEventListener("mouseleave", release);
+        el.addEventListener("touchstart", press);
+        el.addEventListener("touchend", release);
+        el.addEventListener("touchcancel", release);
+      }
+
+      document.querySelectorAll(".td-button").forEach((el) => {
+        bindButtonPressRelease(el);
+      });
+
+      document.querySelectorAll("input[type='range'][data-name]").forEach((el) => {
+        el.addEventListener("input", () => {
+          updateValueLabel(el.id, el.value);
+          sendSegment("slider", el.dataset.name, el.value);
+        });
+      });
+
+      primaryColorInput.addEventListener("input", sendBackgroundColor);
+      backgroundAlphaInput.addEventListener("input", sendBackgroundColor);
+
+      document.querySelectorAll("select[data-name]").forEach((el) => {
+        el.addEventListener("change", () => {
+          sendSegment("text", el.dataset.name, el.value);
+        });
+      });
+
+      document.querySelectorAll("input[type='number'][data-name]").forEach((el) => {
+        el.addEventListener("change", () => {
+          sendSegment("slider", el.dataset.name, el.value);
+        });
+      });
+
+      document.querySelectorAll("input[type='checkbox'][data-name]").forEach((el) => {
+        el.addEventListener("change", () => {
+          sendSegment("toggle", el.dataset.name, el.checked ? "1" : "0");
+        });
+      });
+
+      document.querySelectorAll("input[type='radio'][data-name]").forEach((el) => {
+        el.addEventListener("change", () => {
+          if (el.checked) {
+            sendSegment("text", el.dataset.name, el.value);
+          }
+        });
+      });
+
+      document.getElementById("titleText").addEventListener("change", (event) => {
+        sendSegment("text", "title", event.target.value);
+      });
+
+      mousePositionToggle.addEventListener("change", () => {
+        mouseTrackingEnabled = mousePositionToggle.checked;
+        sendSegment("toggle", "mousePosition", mouseTrackingEnabled ? "1" : "0");
+      });
+
+      keyCaptureToggle.addEventListener("change", () => {
+        keyCaptureEnabled = keyCaptureToggle.checked;
+        sendSegment("toggle", "keyCapture", keyCaptureEnabled ? "1" : "0");
+      });
+
+      window.addEventListener("mousemove", sendMousePosition);
+
+      window.addEventListener("keydown", (event) => {
+        if (!keyCaptureEnabled) {
+          return;
+        }
+
+        if (event.repeat) {
+          return;
+        }
+
+        sendSegment("text", "key", event.key);
+      });
+
+      sendManualBtn.addEventListener("click", () => {
+        const text = manualTextEl.value.trim();
+        if (!text) {
+          return;
+        }
+        sendToTouchDesigner(text);
+      });
+
+      clearLogBtn.addEventListener("click", () => {
+        logEl.innerHTML = "";
+      });
+
+      syncBackgroundDisplayFromInputs();
+
+      // Auto-connect on load for quick testing.
+      connect();
+    })();
+  </script>
+</body>
+</html>
